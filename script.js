@@ -3,7 +3,6 @@ const searchBtn = document.getElementById("search-btn");
 
 /////////////SEARCH BUTTON HANDLER//////
 searchBtn.addEventListener("click", () => {
-  document.getElementById("details").style.display = "none";
   const searchString = document.getElementById("searchBar").value;
   if (searchString.length != 1) {
     sorry(" Search With Single Letter");
@@ -30,12 +29,17 @@ const getData = async (name) => {
 const getAllMeal = (mealName) => {
   const div = document.getElementById("mealList");
   div.innerHTML = "";
+  document.getElementById('details').innerHTML = ""
   mealName.forEach((obj) => {
     const newdiv = document.createElement("div");
-    newdiv.className = "infoClass";
+    newdiv.className = "col";
     let mealInfo = `
-    <img onclick="getDetails(${obj.idMeal})" src="${obj.strMealThumb}"></img>
-    <h3 onclick="getDetails(${obj.idMeal})"> ${obj.strMeal} </h3>`;
+    <div class="card h-100">
+    <img onclick="getDetails(${obj.idMeal})" src="${obj.strMealThumb}" class="card-img-top" alt="pic">
+    <div class="card-body">
+      <h5 onclick="getDetails(${obj.idMeal})" class="card-title text-center">${obj.strMeal}</h5>
+    </div>
+  </div>`;
     newdiv.innerHTML = mealInfo;
     div.appendChild(newdiv);
   });
@@ -43,55 +47,59 @@ const getAllMeal = (mealName) => {
 
 ///////////MACHINE FOR GIVE MORE DETAILS OF SINGLE ITEM MEAL///////
 const getDetails = async (mealId) => {
-  const url = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`;
-  const res = await fetch(url);
-  const data = await res.json();
-  setInfo(data.meals[0]);
-};
+    const url = `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    setInfo(data.meals[0]);
+  };
+  
 
-///machine for meal details
-const setInfo = (info) => {
-  const information = document.getElementById("details");
-  information.style.display = "block";
+  ///machine for meal details
+  const setInfo = (info) => {
+    const information = document.getElementById("details");
+     information.style.display = "block";
+     information.innerHTML = ''
+    let ingArray = [];
+    ////getting meal ingredients
+    for (let i = 1; i < 20; i++) {
+      ingArray.push(info[`strIngredient${i}`]);
+    }
 
-  //Showing meal detail info
-  information.innerHTML = `
-  <img src="${info.strMealThumb}"></img><br>
-<h2>${info.strMeal}</h2>
-<ul><h4>Ingredients</h4>
-<li>${info.strIngredient1} </li>
-<li>${info.strIngredient2} </li>
-<li>${info.strIngredient3} </li>
-<li>${info.strIngredient4} </li>
-<li>${info.strIngredient5} </li>
-<li>${info.strIngredient6} </li>
-<li>${info.strIngredient7} </li>
-<li>${info.strIngredient8} </li>
-<li>${info.strIngredient9} </li>
-<li>${info.strIngredient10} </li>
-<li>${info.strIngredient11} </li>
-<li>${info.strIngredient12} </li>
-<li>${info.strIngredient13} </li>
-<li>${info.strIngredient14} </li>
-<li>${info.strIngredient15} </li>
-</ul>
-<button onclick="displayNone()">CLEAR</button>`;
-};
+let ul = document.createElement('ul');
+ul.innerHTML = ''
+    ingArray.forEach((obj) => {
+        const li = document.createElement("li");
+        li.innerText = obj;
+        ul.appendChild(li);
+      });
+    
+information.innerHTML= `<div class="col-sm-8 col-md-5">
+<div id="card" class="card h-100">
+  <div class="card-body">
+  <img src="${info.strMealThumb}" class="card-img-top" alt="pic"></img>
+  <h3>${info.strMeal}</h3>
+    <h6 class="card-title">Ingredients</h6>
+    ${ul.innerHTML}
+ </div>
+</div>
+</div>`
+    
+  }
 
-const displayNone = () => {
-  document.getElementById("details").style.display = "none";
-};
-
-///////GIVE ERROR NOTIFICATION WHILE SOMEONE INPUT 2 OR MORE VALUE//////
-const sorry = (string) => {
-  const div = document.getElementById("mealList");
-  div.innerHTML = "";
-  const newdiv = document.createElement("div");
-  newdiv.className = "sorryClass";
-  const mealInfo = `
-    <h1> ${string} </h1>
-    <button onclick="location.reload()">CLEAR</button>`;
-  newdiv.innerHTML = mealInfo;
-  div.appendChild(newdiv);
-};
-/////////thank you sir!/////////
+  const displayNone = () => {
+    document.getElementById("details").style.display = "none";
+  };
+  
+  ///////GIVE ERROR NOTIFICATION WHILE SOMEONE INPUT 2 OR MORE VALUE//////
+  const sorry = (string) => {
+    const div = document.getElementById("details");
+    div.innerHTML = "";
+    document.getElementById("mealList").innerHTML = "";
+    const newdiv = document.createElement("div");
+    newdiv.className = 'card h-100 text-center py-5 bg-danger text-white';
+    const mealInfo = `
+      <h1> ${string} </h1>
+      <button class=" mt-3 bg-primary text-white"  onclick="location.reload()">CLEAR</button>`;
+    newdiv.innerHTML = mealInfo;
+    div.appendChild(newdiv);
+  };
